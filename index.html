@@ -1,12 +1,312 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Web</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Contador TE AMO con foto extra y texto legible</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Roboto&display=swap');
+  body {
+    margin: 0; padding: 0;
+    background: black;
+    overflow: hidden;
+    font-family: 'Roboto', sans-serif;
+    height: 100vh;
+    position: relative;
+  }
+  #matrix {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 0;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  #container {
+    position: relative;
+    z-index: 2;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    transition: opacity 1.5s ease-in-out;
+    opacity: 1;
+  }
+  #heart {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    margin-bottom: 20px;
+  }
+  #heart img {
+    width: 250px;
+    height: auto;
+    border-radius: 15px;
+    display: block;
+  }
+  #time {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    color: white;
+    text-shadow: 0 0 10px #b30000;
+    font-family: 'Great Vibes', cursive;
+    user-select: none;
+  }
+  #message {
+    color: white;
+    font-size: 1.8rem;
+    font-family: 'Great Vibes', cursive;
+    font-weight: 800;
+    text-shadow:
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000;
+  }
+  #final-content {
+    position: fixed;
+    top: 20px; bottom: 20px; left: 20px; right: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.5s ease-in-out;
+    z-index: 3;
+  }
+  #final-content.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #text-message {
+    width: 50%;
+    font-family: 'Great Vibes', cursive;
+    color: white;
+    font-size: 1.3rem;
+    line-height: 2.5;
+    letter-spacing: 0.05em;
+    text-shadow:
+      -1px -1px 2px black,
+      1px -1px 2px black,
+      -1px 1px 2px black,
+      1px 1px 2px black;
+    padding-right: 15px;
+    text-align: left;
+  }
+  #tree-section {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #tree {
+    width: 250px;
+    height: 250px;
+    background: transparent;
+    margin: 10px 0;
+  }
+  #tree img, .side-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px #ff4040cc;
+    object-fit: cover;
+  }
+  #tree img {
+    animation: sway 4s ease-in-out infinite;
+  }
+  #extra-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-top: 15px;
+    box-shadow: 0 0 15px #ff4040cc;
+    object-fit: cover;
+  }
+  @keyframes sway {
+    0% { transform: rotate(0deg) translateX(0); }
+    50% { transform: rotate(10deg) translateX(10px); }
+    100% { transform: rotate(0deg) translateX(0); }
+  }
+  /* Responsive para celular */
+  @media (max-width: 600px) {
+    #final-content {
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    #text-message {
+      width: 45%;
+      font-size: 1.25rem;
+    }
+    #tree-section {
+      width: 45%;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    #tree {
+      width: 150px;
+      height: 150px;
+      margin: 5px 0;
+    }
+    .side-photo, #extra-photo {
+      width: 120px;
+      height: 120px;
+      margin: 5px 0;
+    }
+  }
+  /* Botón audio oculto inicialmente */
+  #audio-button {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 5;
+    background-color: #b30000;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 18px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 0 10px #b30000aa;
+    user-select: none;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+  #audio-button:hover {
+    background-color: #d94040;
+  }
+</style>
 </head>
 <body>
-    <h1>Bienvenido a mi web!</h1>
-    <p>Este es el contenido de mi página principal.</p>
+  <canvas id="matrix"></canvas>
+  <div id="container">
+    <div id="message">Esto Es Para Ti Najhely</div>
+    <div id="heart">
+      <img src="https://i.pinimg.com/1200x/33/b6/77/33b67771c6dded70c917562f55d3406c.jpg" alt="Corazón" />
+      <div id="time">00:00:00</div>
+    </div>
+  </div>
+  <div id="final-content">
+    <div id="text-message">
+      Este tiempo a tu lado me hizo entender que aunque no te conocía mi corazón ya te buscaba, entendí que aquí es mi lugar seguro a donde siempre puedo regresar y sobre todo entendí que nunca había amado antes porque contigo aprendí a hacerlo, FELIZ ANIVERSARIO MI AMOR
+    </div>
+    <div id="tree-section">
+      <img class="side-photo" src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3hxNHJhNnNtazRkbml4cjVmcXppYjd6eHNqMHA4OXhyMmlvb2J6bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/i3EYvLiakdkOuGwXJD/giphy.gif" alt="Foto arriba" />
+      <div id="tree">
+        <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExeG9xa2RvMXVmenRreW02YXFqZnNtdmF6OXFvN3Voem14ejE5dnV3YiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FfD0B7YrtZ32e6yCss/giphy.gif" alt="Árbol animado" />
+      </div>
+      <img class="side-photo" src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZnIzbmh4YmVyeXBocDJqMmVxd2I1Mjgxd2M5YzEwYTR0M3I0OWVrYSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/GZAkuQLf6b5zDYe9Xw/giphy.gif" alt="Foto abajo" />
+      <img id="extra-photo" src="https://i.pinimg.com/736x/a1/d6/00/a1d60062b4d85ab7c8bf4d63057c830b.jpg" alt="Foto extra" />
+    </div>
+  </div>
+
+  <audio id="audio-final" preload="auto">
+    <source src="https://mcdn.podbean.com/mf/web/d294f32xitup7aiy/WhatsApp-Audio-2025-09-17-at-171938-_1_76ltk.mp3" type="audio/mpeg" />
+    Tu navegador no soporta audio HTML5.
+  </audio>
+
+  <button id="audio-button">▶️ Reproducir Audio</button>
+
+  <script>
+    const targetDate = new Date('2025-09-21T00:00:00');
+    const timeDisplay = document.getElementById('time');
+    const container = document.getElementById('container');
+    const finalContent = document.getElementById('final-content');
+    const audioButton = document.getElementById('audio-button');
+
+    function showFinalContent() {
+      container.style.opacity = '0';
+      setTimeout(() => {
+        container.style.display = 'none';
+        finalContent.classList.add('show');
+        // Mostrar botón de audio cuando aparezca contenido final
+        audioButton.style.display = 'flex';
+      }, 1500);
+    }
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+      if (distance <= 0) {
+        timeDisplay.textContent = "00:00:00";
+        clearInterval(timerInterval);
+        showFinalContent();
+        return;
+      }
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      timeDisplay.textContent =
+        (days > 0 ? days + "d " : "") +
+        (hours < 10 ? "0" + hours : hours) + ":" +
+        (minutes < 10 ? "0" + minutes : minutes) + ":" +
+        (seconds < 10 ? "0" + seconds : seconds);
+    }
+
+    if (new Date() >= targetDate) {
+      showFinalContent();
+      audioButton.style.display = 'flex'; 
+    } else {
+      updateCountdown();
+      var timerInterval = setInterval(updateCountdown, 500);
+      audioButton.style.display = 'none'; // Ocultar botón al inicio
+    }
+
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    const phrase = "TE AMO ";
+    const fontSize = 25;
+    const columns = Math.floor(width / fontSize);
+    let drops = Array(columns).fill(0);
+
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.07)";
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.font = fontSize + "px monospace";
+      for (let i = 0; i < drops.length; i++) {
+        const text = phrase[drops[i] % phrase.length];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > height && Math.random() > 0.95) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    window.addEventListener("resize", () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    setInterval(draw, 35);
+
+    // Control del audio con botón personalizado
+    const audioElement = document.getElementById('audio-final');
+    const playPauseBtn = document.getElementById('audio-button');
+
+    playPauseBtn.addEventListener('click', () => {
+      if (audioElement.paused) {
+        audioElement.play();
+        playPauseBtn.textContent = "⏸️ Pausar Audio";
+      } else {
+        audioElement.pause();
+        playPauseBtn.textContent = "▶️ Reproducir Audio";
+      }
+    });
+  </script>
 </body>
 </html>
